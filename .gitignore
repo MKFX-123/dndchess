@@ -1,0 +1,15 @@
+# 编译产物
+autochess
+test_chess
+test_player
+test_battle
+test_ai
+test_tui
+*.o
+*.obj
+
+# 存档文件
+savegame.txt
+
+# 系统文件
+.DS_Store
