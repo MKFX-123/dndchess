@@ -27,16 +27,18 @@ void AIPlayer::tryMerge() {
             for (size_t j = i + 1; j < bench.size() && !merged; j++) {
                 ChessPiece* a = bench[i];
                 ChessPiece* b = bench[j];
+                if (!a || !b) continue;
 
                 // 同等级 + 同系别（攻击距离相同）
                 if (a->getLevel() != b->getLevel()) continue;
                 if (a->getRange() != b->getRange()) continue;
                 if (a->getSymbol() == b->getSymbol()) continue;  // 同职业跳过
 
+                // mergePiece 会修改 bench（删除两个、新增一个），合并后重新扫描
                 ChessPiece* result = mergePiece((int)i, (int)j);
                 if (result) {
                     std::cout << "  [AI] 合并: " << result->getName() << std::endl;
-                    merged = true;
+                    merged = true;  // 跳出两层循环，while 重新开始
                 }
             }
         }

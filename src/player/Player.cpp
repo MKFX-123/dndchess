@@ -233,7 +233,7 @@ void Player::arrangeBoard(int benchIndex, int boardPos) {
         bench.push_back(board[boardPos]);
     }
     board[boardPos] = bench[benchIndex];
-    bench[boardPos]->setPos(boardPos);
+    board[boardPos]->setPos(boardPos);
     bench.erase(bench.begin() + benchIndex);
 }
 
