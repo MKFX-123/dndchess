@@ -1,4 +1,5 @@
 #include "ChessPiece.h"
+#include "../battlelog.h"
 
 // ============================================================
 // ChessPiece 基类实现
@@ -70,30 +71,50 @@ std::ostream& operator<<(std::ostream& os, const ChessPiece& p) {
 void Fighter::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(str) + meleeBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(str);
+    int hit = roll + mod + meleeBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(8) + getMod(str) + meleeBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::hitRoll(roll, mod, meleeBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(8).roll();
+        int dmg = (dmgRoll + mod + meleeBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::damage(8, dmgRoll, mod, meleeBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, meleeBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Fighter::useSkill(ChessPiece& target) {
-    if (level >= 3) { if (Dice(100).roll() <= 50) attack(target); }
-    else { if (Dice(100).roll() <= 30) attack(target); }
+    if (Dice(100).roll() <= (level >= 3 ? 50 : 30)) { BattleLog::skill("二次风"); attack(target); }
 }
 
 // 野蛮人：d8 + STR，HP<30% 狂暴翻倍
 void Barbarian::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(str) + meleeBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(str);
+    int hit = roll + mod + meleeBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(8) + getMod(str) + meleeBonus) * (roll == 20 ? 2 : 1);
-        if (hp * 100 < hpMax * 30) dmg *= 2;
+        BattleLog::hitRoll(roll, mod, meleeBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(8).roll();
+        int dmg = (dmgRoll + mod + meleeBonus) * (roll == 20 ? 2 : 1);
+        bool raged = (hp * 100 < hpMax * 30);
+        if (raged) { dmg *= 2; BattleLog::skill("狂暴(伤害翻倍)"); }
+        BattleLog::damage(8, dmgRoll, mod, meleeBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, meleeBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Barbarian::useSkill(ChessPiece& target) {}
@@ -102,12 +123,22 @@ void Barbarian::useSkill(ChessPiece& target) {}
 void Paladin::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(str) + meleeBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(str);
+    int hit = roll + mod + meleeBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(8) + getMod(str) + meleeBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::hitRoll(roll, mod, meleeBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(8).roll();
+        int dmg = (dmgRoll + mod + meleeBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::damage(8, dmgRoll, mod, meleeBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, meleeBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Paladin::useSkill(ChessPiece& target) {}
@@ -121,12 +152,22 @@ void Paladin::takeDamage(int dmg) {
 void Ranger::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(dex) + rangedBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(dex);
+    int hit = roll + mod + rangedBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(6) + getMod(dex) + rangedBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::hitRoll(roll, mod, rangedBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(6).roll();
+        int dmg = (dmgRoll + mod + rangedBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::damage(6, dmgRoll, mod, rangedBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, rangedBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Ranger::useSkill(ChessPiece& target) {}
@@ -135,12 +176,22 @@ void Ranger::useSkill(ChessPiece& target) {}
 void Bard::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(cha) + rangedBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(cha);
+    int hit = roll + mod + rangedBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(6) + getMod(cha) + rangedBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::hitRoll(roll, mod, rangedBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(6).roll();
+        int dmg = (dmgRoll + mod + rangedBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::damage(6, dmgRoll, mod, rangedBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, rangedBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Bard::useSkill(ChessPiece& target) {}
@@ -149,12 +200,22 @@ void Bard::useSkill(ChessPiece& target) {}
 void Wizard::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(intel) + focusBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(intel);
+    int hit = roll + mod + focusBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(10) + getMod(intel) + focusBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::hitRoll(roll, mod, focusBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(10).roll();
+        int dmg = (dmgRoll + mod + focusBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::damage(10, dmgRoll, mod, focusBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, focusBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Wizard::useSkill(ChessPiece& target) {}
@@ -163,12 +224,22 @@ void Wizard::useSkill(ChessPiece& target) {}
 void Cleric::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(wis) + focusBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(wis);
+    int hit = roll + mod + focusBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(8) + getMod(wis) + focusBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::hitRoll(roll, mod, focusBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(8).roll();
+        int dmg = (dmgRoll + mod + focusBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::damage(8, dmgRoll, mod, focusBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, focusBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Cleric::useSkill(ChessPiece& target) {}
@@ -181,31 +252,50 @@ void Cleric::useSkill(ChessPiece& target) {}
 void Berserker::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(str) + meleeBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(str);
+    int hit = roll + mod + meleeBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(8) + getMod(str) + meleeBonus) * (roll == 20 ? 2 : 1);
-        if (hp * 100 < hpMax * 30) dmg *= 2;
+        BattleLog::hitRoll(roll, mod, meleeBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(8).roll();
+        int dmg = (dmgRoll + mod + meleeBonus) * (roll == 20 ? 2 : 1);
+        if (hp * 100 < hpMax * 30) { dmg *= 2; BattleLog::skill("狂暴(伤害翻倍)"); }
+        BattleLog::damage(8, dmgRoll, mod, meleeBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, meleeBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Berserker::useSkill(ChessPiece& target) {
-    if (level >= 3) { if (Dice(100).roll() <= 50) attack(target); }
-    else { if (Dice(100).roll() <= 30) attack(target); }
+    if (Dice(100).roll() <= (level >= 3 ? 50 : 30)) { BattleLog::skill("二次风"); attack(target); }
 }
 
 // 神卫士：圣武士减伤 + 野蛮人狂暴
 void Defender::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(str) + meleeBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(str);
+    int hit = roll + mod + meleeBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(8) + getMod(str) + meleeBonus) * (roll == 20 ? 2 : 1);
-        if (hp * 100 < hpMax * 30) dmg *= 2;
+        BattleLog::hitRoll(roll, mod, meleeBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(8).roll();
+        int dmg = (dmgRoll + mod + meleeBonus) * (roll == 20 ? 2 : 1);
+        if (hp * 100 < hpMax * 30) { dmg *= 2; BattleLog::skill("狂暴(伤害翻倍)"); }
+        BattleLog::damage(8, dmgRoll, mod, meleeBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, meleeBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Defender::useSkill(ChessPiece& target) {}
@@ -219,17 +309,26 @@ void Defender::takeDamage(int dmg) {
 void PaladinKnight::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(str) + meleeBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(str);
+    int hit = roll + mod + meleeBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(8) + getMod(str) + meleeBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::hitRoll(roll, mod, meleeBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(8).roll();
+        int dmg = (dmgRoll + mod + meleeBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::damage(8, dmgRoll, mod, meleeBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, meleeBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void PaladinKnight::useSkill(ChessPiece& target) {
-    if (level >= 3) { if (Dice(100).roll() <= 50) attack(target); }
-    else { if (Dice(100).roll() <= 30) attack(target); }
+    if (Dice(100).roll() <= (level >= 3 ? 50 : 30)) { BattleLog::skill("二次风"); attack(target); }
 }
 void PaladinKnight::takeDamage(int dmg) {
     int reduced = dmg - 3;
@@ -241,12 +340,22 @@ void PaladinKnight::takeDamage(int dmg) {
 void ArcaneArcher::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(dex) + rangedBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(dex);
+    int hit = roll + mod + rangedBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(6) + getMod(dex) + rangedBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::hitRoll(roll, mod, rangedBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(6).roll();
+        int dmg = (dmgRoll + mod + rangedBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::damage(6, dmgRoll, mod, rangedBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, rangedBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void ArcaneArcher::useSkill(ChessPiece& target) {}
@@ -255,12 +364,22 @@ void ArcaneArcher::useSkill(ChessPiece& target) {}
 void Oracle::attack(ChessPiece& target) {
     if (fumbled) { fumbled = false; return; }
     int roll = Dice(20).roll();
-    int hit = roll + getMod(intel) + focusBonus;
-    if (roll == 1) { fumbled = true; return; }
+    int mod = getMod(intel);
+    int hit = roll + mod + focusBonus;
+    BattleLog::attack(name, target.getName());
+    if (roll == 1) { fumbled = true; BattleLog::fumble(roll); BattleLog::end(); return; }
     if (roll == 20 || hit >= target.getAC()) {
-        int dmg = (Dice(10) + getMod(intel) + focusBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::hitRoll(roll, mod, focusBonus, hit, target.getAC(), roll == 20);
+        int dmgRoll = Dice(10).roll();
+        int dmg = (dmgRoll + mod + focusBonus) * (roll == 20 ? 2 : 1);
+        BattleLog::damage(10, dmgRoll, mod, focusBonus, dmg, roll == 20);
         target.takeDamage(dmg);
+        BattleLog::result(target.getName(), dmg, target.getHP());
+        BattleLog::end();
         useSkill(target);
+    } else {
+        BattleLog::miss(roll, mod, focusBonus, hit, target.getAC());
+        BattleLog::end();
     }
 }
 void Oracle::useSkill(ChessPiece& target) {}

@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "../tui.h"
+#include "../battlelog.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -125,6 +126,13 @@ bool Game::handleCommand(const std::string& cmd) {
     if (op == "board") { showBoard(); return true; }
     if (op == "status") { showStatus(); return true; }
     if (op == "save") { saveGame(); return true; }
+    if (op == "log") {
+        BattleLog::enabled() = !BattleLog::enabled();
+        std::cout << "  " << (BattleLog::enabled() ? green("战斗日志已开启") : yellow("战斗日志已关闭")) << std::endl;
+        std::cout << "  按回车继续...";
+        std::getline(std::cin, input_dummy());
+        return true;
+    }
 
     if (op == "buy") {
         int n;
@@ -288,6 +296,7 @@ void Game::renderUI() {
     std::cout << "  " << yellow("merge <a> <b>") << " 合并a和b" << std::endl;
     std::cout << "  " << yellow("status")   << "   查看状态" << std::endl;
     std::cout << "  " << yellow("save")     << "    存档" << std::endl;
+    std::cout << "  " << yellow("log")      << "     切换战斗日志" << std::endl;
     std::cout << "  " << yellow("next")     << "    开始战斗" << std::endl;
     std::cout << "  " << yellow("help")     << "    帮助" << std::endl;
     std::cout << "  " << yellow("quit")     << "    退出" << std::endl;
@@ -368,6 +377,7 @@ void Game::showHelp() {
     std::cout << "  merge <a> <b>   合并备战席a和b" << std::endl;
     std::cout << "  status          查看状态" << std::endl;
     std::cout << "  save            存档" << std::endl;
+    std::cout << "  log             切换战斗日志开关" << std::endl;
     std::cout << "  next            开始战斗" << std::endl;
     std::cout << "  quit            退出游戏" << std::endl;
     std::cout << "  按回车继续...";
