@@ -76,13 +76,13 @@ ChessPiece* Player::generateRandomPiece(int maxLevel) {
     // 名字格式：职业缩写 + 随机编号
     std::string prefix;
     switch (job) {
-        case 1: prefix = "F"; piece = new Fighter(prefix, Rarity::Common, 1, 16+scale, 12, 14+scale, 10, 10, 10); break;
-        case 2: prefix = "B"; piece = new Barbarian(prefix, Rarity::Common, 1, 18+scale, 12, 16+scale, 8, 10, 10); break;
-        case 3: prefix = "P"; piece = new Paladin(prefix, Rarity::Common, 1, 16+scale, 10, 14+scale, 10, 12, 14); break;
-        case 4: prefix = "R"; piece = new Ranger(prefix, Rarity::Common, 1, 12, 16+scale, 12, 10, 14, 10); break;
-        case 5: prefix = "D"; piece = new Bard(prefix, Rarity::Common, 1, 10, 14, 12, 12, 10, 16+scale); break;
-        case 6: prefix = "W"; piece = new Wizard(prefix, Rarity::Common, 1, 8, 12, 10, 18+scale, 14, 12); break;
-        case 7: prefix = "C"; piece = new Cleric(prefix, Rarity::Common, 1, 10, 12, 12, 12, 16+scale, 12); break;
+        case 1: prefix = "F"; piece = new Fighter(prefix, 1, 16+scale, 12, 14+scale, 10, 10, 10); break;
+        case 2: prefix = "B"; piece = new Barbarian(prefix, 1, 18+scale, 12, 16+scale, 8, 10, 10); break;
+        case 3: prefix = "P"; piece = new Paladin(prefix, 1, 16+scale, 10, 14+scale, 10, 12, 14); break;
+        case 4: prefix = "R"; piece = new Ranger(prefix, 1, 12, 16+scale, 12, 10, 14, 10); break;
+        case 5: prefix = "D"; piece = new Bard(prefix, 1, 10, 14, 12, 12, 10, 16+scale); break;
+        case 6: prefix = "W"; piece = new Wizard(prefix, 1, 8, 12, 10, 18+scale, 14, 12); break;
+        case 7: prefix = "C"; piece = new Cleric(prefix, 1, 10, 12, 12, 12, 16+scale, 12); break;
     }
     if (!piece) return nullptr;
 
@@ -181,11 +181,11 @@ ChessPiece* Player::mergePiece(int idxA, int idxB) {
         bool isPaladinB = dynamic_cast<Paladin*>(b) != nullptr;
 
         if ((isBarbarianA && isFighterB) || (isFighterA && isBarbarianB)) {
-            merged = new Berserker(n, Rarity::Rare, totalGold, s, d, c, i, w, ch);
+            merged = new Berserker(n, totalGold, s, d, c, i, w, ch);
         } else if ((isPaladinA && isBarbarianB) || (isBarbarianA && isPaladinB)) {
-            merged = new Defender(n, Rarity::Rare, totalGold, s, d, c, i, w, ch);
+            merged = new Defender(n, totalGold, s, d, c, i, w, ch);
         } else if ((isFighterA && isPaladinB) || (isPaladinA && isFighterB)) {
-            merged = new PaladinKnight(n, Rarity::Rare, totalGold, s, d, c, i, w, ch);
+            merged = new PaladinKnight(n, totalGold, s, d, c, i, w, ch);
         }
     }
     // 远程系合并（距离 3）
@@ -196,7 +196,7 @@ ChessPiece* Player::mergePiece(int idxA, int idxB) {
         bool isBardB = dynamic_cast<Bard*>(b) != nullptr;
 
         if ((isRangerA && isBardB) || (isBardA && isRangerB)) {
-            merged = new ArcaneArcher(n, Rarity::Rare, totalGold, s, d, c, i, w, ch);
+            merged = new ArcaneArcher(n, totalGold, s, d, c, i, w, ch);
         }
     }
     // 法术系合并（距离 4）
@@ -207,7 +207,7 @@ ChessPiece* Player::mergePiece(int idxA, int idxB) {
         bool isClericB = dynamic_cast<Cleric*>(b) != nullptr;
 
         if ((isWizardA && isClericB) || (isClericA && isWizardB)) {
-            merged = new Oracle(n, Rarity::Rare, totalGold, s, d, c, i, w, ch);
+            merged = new Oracle(n, totalGold, s, d, c, i, w, ch);
         }
     }
 

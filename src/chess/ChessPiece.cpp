@@ -4,9 +4,9 @@
 // ChessPiece 基类实现
 // ============================================================
 
-ChessPiece::ChessPiece(std::string n, Rarity r, int g,
+ChessPiece::ChessPiece(std::string n, int g,
                        int s, int d, int c, int i, int w, int ch)
-    : name(n), rarity(r), gold(g),
+    : name(n), gold(g),
       str(s), dex(d), con(c), intel(i), wis(w), cha(ch),
       armorBonus(0), range(0), level(1), pos(-1),
       taunt(false), stealth(false), fumbled(false), alive(true) {
@@ -43,7 +43,6 @@ void ChessPiece::display() const {
               << " Lv" << level
               << " HP:" << hp << "/" << hpMax
               << " AC:" << ac
-              << " (" << rarityToString(rarity) << ")"
               << (alive ? "" : " [阵亡]")
               << (fumbled ? " [失误]" : "")
               << (taunt ? " [嘲讽]" : "")
@@ -61,17 +60,6 @@ std::ostream& operator<<(std::ostream& os, const ChessPiece& p) {
     os << "[" << p.getSymbol() << "] " << p.name
        << " HP:" << p.hp << "/" << p.hpMax;
     return os;
-}
-
-std::string rarityToString(Rarity r) {
-    switch (r) {
-        case Rarity::Common: return "普通";
-        case Rarity::Uncommon: return "稀有";
-        case Rarity::Rare: return "史诗";
-        case Rarity::Legendary: return "传说";
-        case Rarity::Mythic: return "神话";
-    }
-    return "?";
 }
 
 // ============================================================

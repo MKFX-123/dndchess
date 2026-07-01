@@ -5,15 +5,12 @@
 #include <iostream>
 #include "dice.h"
 
-enum class Rarity { Common, Uncommon, Rare, Legendary, Mythic };
-
 // ============================================================
 // 抽象基类 ChessPiece
 // ============================================================
 class ChessPiece {
 protected:
     std::string name;
-    Rarity rarity;
     int gold;
 
     int str, dex, con, intel, wis, cha;
@@ -29,7 +26,7 @@ protected:
     bool alive;
 
 public:
-    ChessPiece(std::string n, Rarity r, int g,
+    ChessPiece(std::string n, int g,
                int s, int d, int c, int i, int w, int ch);
     virtual ~ChessPiece() = default;
 
@@ -57,7 +54,6 @@ public:
     std::string getName() const { return name; }
     void setName(const std::string& n) { name = n; }
     std::string getSymbol() const;
-    Rarity getRarity() const { return rarity; }
     int getStr() const { return str; }
     int getDex() const { return dex; }
     int getCon() const { return con; }
@@ -83,8 +79,6 @@ protected:
     void recalcStats();
 };
 
-std::string rarityToString(Rarity r);
-
 // ============================================================
 // 中间基类：虚继承 ChessPiece
 // ============================================================
@@ -92,10 +86,10 @@ class MeleePiece : virtual public ChessPiece {
 protected:
     int meleeBonus;
 public:
-    MeleePiece() : ChessPiece("", Rarity::Common, 1, 10,10,10,10,10,10), meleeBonus(2) { range = 1; }
-    MeleePiece(std::string n, Rarity r, int g,
+    MeleePiece() : ChessPiece("", 1, 10,10,10,10,10,10), meleeBonus(2) { range = 1; }
+    MeleePiece(std::string n, int g,
                int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch), meleeBonus(2) { range = 1; }
+        : ChessPiece(n, g, s, d, c, i, w, ch), meleeBonus(2) { range = 1; }
     int getMeleeBonus() const { return meleeBonus; }
 };
 
@@ -103,10 +97,10 @@ class RangedPiece : virtual public ChessPiece {
 protected:
     int rangedBonus;
 public:
-    RangedPiece() : ChessPiece("", Rarity::Common, 1, 10,10,10,10,10,10), rangedBonus(2) { range = 3; }
-    RangedPiece(std::string n, Rarity r, int g,
+    RangedPiece() : ChessPiece("", 1, 10,10,10,10,10,10), rangedBonus(2) { range = 3; }
+    RangedPiece(std::string n, int g,
                 int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch), rangedBonus(2) { range = 3; }
+        : ChessPiece(n, g, s, d, c, i, w, ch), rangedBonus(2) { range = 3; }
     int getRangedBonus() const { return rangedBonus; }
 };
 
@@ -114,10 +108,10 @@ class SpellcasterPiece : virtual public ChessPiece {
 protected:
     int focusBonus;
 public:
-    SpellcasterPiece() : ChessPiece("", Rarity::Common, 1, 10,10,10,10,10,10), focusBonus(2) { range = 4; }
-    SpellcasterPiece(std::string n, Rarity r, int g,
+    SpellcasterPiece() : ChessPiece("", 1, 10,10,10,10,10,10), focusBonus(2) { range = 4; }
+    SpellcasterPiece(std::string n, int g,
                      int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch), focusBonus(2) { range = 4; }
+        : ChessPiece(n, g, s, d, c, i, w, ch), focusBonus(2) { range = 4; }
     int getFocusBonus() const { return focusBonus; }
 };
 
@@ -128,10 +122,10 @@ public:
 // 战士：二次风（30% 再攻击一次）
 class Fighter : virtual public MeleePiece {
 public:
-    Fighter(std::string n, Rarity r, int g,
+    Fighter(std::string n, int g,
             int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          MeleePiece(n, r, g, s, d, c, i, w, ch) {}
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          MeleePiece(n, g, s, d, c, i, w, ch) {}
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
 };
@@ -139,10 +133,10 @@ public:
 // 野蛮人：狂暴（HP<30% 伤害翻倍），嘲讽
 class Barbarian : virtual public MeleePiece {
 public:
-    Barbarian(std::string n, Rarity r, int g,
+    Barbarian(std::string n, int g,
               int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          MeleePiece(n, r, g, s, d, c, i, w, ch) { taunt = true; armorBonus = 1; recalcStats(); }
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          MeleePiece(n, g, s, d, c, i, w, ch) { taunt = true; armorBonus = 1; recalcStats(); }
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
 };
@@ -150,10 +144,10 @@ public:
 // 圣武士：固定减伤 3 点，嘲讽
 class Paladin : virtual public MeleePiece {
 public:
-    Paladin(std::string n, Rarity r, int g,
+    Paladin(std::string n, int g,
             int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          MeleePiece(n, r, g, s, d, c, i, w, ch) { taunt = true; armorBonus = 3; recalcStats(); }
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          MeleePiece(n, g, s, d, c, i, w, ch) { taunt = true; armorBonus = 3; recalcStats(); }
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
     void takeDamage(int dmg) override;
@@ -162,10 +156,10 @@ public:
 // 游侠：猎人印记，潜行
 class Ranger : virtual public RangedPiece {
 public:
-    Ranger(std::string n, Rarity r, int g,
+    Ranger(std::string n, int g,
            int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          RangedPiece(n, r, g, s, d, c, i, w, ch) { stealth = true; }
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          RangedPiece(n, g, s, d, c, i, w, ch) { stealth = true; }
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
 };
@@ -173,10 +167,10 @@ public:
 // 吟游诗人：鼓舞（友军攻击力 +2）
 class Bard : virtual public RangedPiece {
 public:
-    Bard(std::string n, Rarity r, int g,
+    Bard(std::string n, int g,
          int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          RangedPiece(n, r, g, s, d, c, i, w, ch) {}
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          RangedPiece(n, g, s, d, c, i, w, ch) {}
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
 };
@@ -184,10 +178,10 @@ public:
 // 法师：火球术（溅射相邻敌人 50%）
 class Wizard : virtual public SpellcasterPiece {
 public:
-    Wizard(std::string n, Rarity r, int g,
+    Wizard(std::string n, int g,
            int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          SpellcasterPiece(n, r, g, s, d, c, i, w, ch) {}
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          SpellcasterPiece(n, g, s, d, c, i, w, ch) {}
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
 };
@@ -195,10 +189,10 @@ public:
 // 牧师：治疗术（攻击后治疗最低血友军）
 class Cleric : virtual public SpellcasterPiece {
 public:
-    Cleric(std::string n, Rarity r, int g,
+    Cleric(std::string n, int g,
            int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          SpellcasterPiece(n, r, g, s, d, c, i, w, ch) {}
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          SpellcasterPiece(n, g, s, d, c, i, w, ch) {}
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
 };
@@ -210,11 +204,11 @@ public:
 // 狂战士：Barbarian + Fighter
 class Berserker : public Barbarian, public Fighter {
 public:
-    Berserker(std::string n, Rarity r, int g,
+    Berserker(std::string n, int g,
               int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          Barbarian(n, r, g, s, d, c, i, w, ch),
-          Fighter(n, r, g, s, d, c, i, w, ch) {}
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          Barbarian(n, g, s, d, c, i, w, ch),
+          Fighter(n, g, s, d, c, i, w, ch) {}
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
 };
@@ -222,11 +216,11 @@ public:
 // 神卫士：Paladin + Barbarian
 class Defender : public Paladin, public Barbarian {
 public:
-    Defender(std::string n, Rarity r, int g,
+    Defender(std::string n, int g,
              int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          Paladin(n, r, g, s, d, c, i, w, ch),
-          Barbarian(n, r, g, s, d, c, i, w, ch) {}
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          Paladin(n, g, s, d, c, i, w, ch),
+          Barbarian(n, g, s, d, c, i, w, ch) {}
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
     void takeDamage(int dmg) override;
@@ -235,11 +229,11 @@ public:
 // 圣骑士：Fighter + Paladin
 class PaladinKnight : public Fighter, public Paladin {
 public:
-    PaladinKnight(std::string n, Rarity r, int g,
+    PaladinKnight(std::string n, int g,
                   int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          Fighter(n, r, g, s, d, c, i, w, ch),
-          Paladin(n, r, g, s, d, c, i, w, ch) {}
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          Fighter(n, g, s, d, c, i, w, ch),
+          Paladin(n, g, s, d, c, i, w, ch) {}
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
     void takeDamage(int dmg) override;
@@ -248,11 +242,11 @@ public:
 // 魔射手：Ranger + Bard
 class ArcaneArcher : public Ranger, public Bard {
 public:
-    ArcaneArcher(std::string n, Rarity r, int g,
+    ArcaneArcher(std::string n, int g,
                  int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          Ranger(n, r, g, s, d, c, i, w, ch),
-          Bard(n, r, g, s, d, c, i, w, ch) {}
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          Ranger(n, g, s, d, c, i, w, ch),
+          Bard(n, g, s, d, c, i, w, ch) {}
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
 };
@@ -260,11 +254,11 @@ public:
 // 神谕者：Wizard + Cleric
 class Oracle : public Wizard, public Cleric {
 public:
-    Oracle(std::string n, Rarity r, int g,
+    Oracle(std::string n, int g,
            int s, int d, int c, int i, int w, int ch)
-        : ChessPiece(n, r, g, s, d, c, i, w, ch),
-          Wizard(n, r, g, s, d, c, i, w, ch),
-          Cleric(n, r, g, s, d, c, i, w, ch) {}
+        : ChessPiece(n, g, s, d, c, i, w, ch),
+          Wizard(n, g, s, d, c, i, w, ch),
+          Cleric(n, g, s, d, c, i, w, ch) {}
     void attack(ChessPiece& target) override;
     void useSkill(ChessPiece& target) override;
 };

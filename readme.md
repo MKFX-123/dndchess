@@ -138,21 +138,4 @@ STR 力量 / DEX 敏捷 / CON 体质 / INT 智力 / WIS 感知 / CHA 魅力
 - 棋子等级 ≤ 商店等级才会出现
 - 等级越高的棋子出现概率越低
 
-## 文件结构
 
-```
-src/
-├── chess/            棋子类（基类 + 7 职业 + 5 进阶）
-│   ├── dice.h        骰子工具
-│   ├── ChessPiece.h
-│   └── ChessPiece.cpp
-├── player/           玩家类
-│   ├── Player.h/.cpp
-│   └── AIPlayer.h/.cpp   贪心算法 AI
-├── battlefield/      战场类
-│   └── Battlefield.h/.cpp
-├── game/             主控
-│   └── Game.h/.cpp
-├── tui.h             ANSI 彩色工具
-└── main.cpp          入口
-```

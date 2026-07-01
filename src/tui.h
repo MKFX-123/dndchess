@@ -24,18 +24,6 @@ inline std::string rangedColor(const std::string& s)   { return "\033[32m" + s +
 inline std::string casterColor(const std::string& s)   { return "\033[34m" + s + "\033[0m"; }  // 法术-蓝
 inline std::string advancedColor(const std::string& s) { return "\033[1;35m" + s + "\033[0m"; } // 进阶-紫粗
 
-// 按稀有度着色
-inline std::string rarityColor(const std::string& s, int rarity) {
-    switch (rarity) {
-        case 0: return "\033[37m" + s + "\033[0m";   // 普通-白
-        case 1: return "\033[32m" + s + "\033[0m";   // 稀有-绿
-        case 2: return "\033[34m" + s + "\033[0m";   // 史诗-蓝
-        case 3: return "\033[33m" + s + "\033[0m";   // 传说-黄
-        case 4: return "\033[1;35m" + s + "\033[0m"; // 神话-紫粗
-        default: return s;
-    }
-}
-
 // HP 颜色（低血量变红）
 inline std::string hpColor(int hp, int hpMax) {
     std::string s = std::to_string(hp) + "/" + std::to_string(hpMax);
