@@ -68,21 +68,26 @@ ChessPiece* Player::generateRandomPiece(int maxLevel) {
     if (pieceLevel > maxLevel) pieceLevel = maxLevel;
 
     int job = Dice(7).roll();
-    std::string n = "棋子" + std::to_string(Dice(999).roll());
 
     // 基础属性按棋子等级缩放
     int scale = pieceLevel;
     ChessPiece* piece = nullptr;
 
+    // 名字格式：职业缩写 + 随机编号
+    std::string prefix;
     switch (job) {
-        case 1: piece = new Fighter(n, Rarity::Common, 1, 16+scale, 12, 14+scale, 10, 10, 10); break;
-        case 2: piece = new Barbarian(n, Rarity::Common, 1, 18+scale, 12, 16+scale, 8, 10, 10); break;
-        case 3: piece = new Paladin(n, Rarity::Common, 1, 16+scale, 10, 14+scale, 10, 12, 14); break;
-        case 4: piece = new Ranger(n, Rarity::Common, 1, 12, 16+scale, 12, 10, 14, 10); break;
-        case 5: piece = new Bard(n, Rarity::Common, 1, 10, 14, 12, 12, 10, 16+scale); break;
-        case 6: piece = new Wizard(n, Rarity::Common, 1, 8, 12, 10, 18+scale, 14, 12); break;
-        case 7: piece = new Cleric(n, Rarity::Common, 1, 10, 12, 12, 12, 16+scale, 12); break;
+        case 1: prefix = "F"; piece = new Fighter(prefix, Rarity::Common, 1, 16+scale, 12, 14+scale, 10, 10, 10); break;
+        case 2: prefix = "B"; piece = new Barbarian(prefix, Rarity::Common, 1, 18+scale, 12, 16+scale, 8, 10, 10); break;
+        case 3: prefix = "P"; piece = new Paladin(prefix, Rarity::Common, 1, 16+scale, 10, 14+scale, 10, 12, 14); break;
+        case 4: prefix = "R"; piece = new Ranger(prefix, Rarity::Common, 1, 12, 16+scale, 12, 10, 14, 10); break;
+        case 5: prefix = "D"; piece = new Bard(prefix, Rarity::Common, 1, 10, 14, 12, 12, 10, 16+scale); break;
+        case 6: prefix = "W"; piece = new Wizard(prefix, Rarity::Common, 1, 8, 12, 10, 18+scale, 14, 12); break;
+        case 7: prefix = "C"; piece = new Cleric(prefix, Rarity::Common, 1, 10, 12, 12, 12, 16+scale, 12); break;
     }
+    if (!piece) return nullptr;
+
+    // 加上随机编号区分同名
+    piece->setName(prefix + std::to_string(Dice(99).roll()));
 
     // 设置棋子等级（通过升级）
     for (int i = 1; i < pieceLevel; i++) piece->levelUp();

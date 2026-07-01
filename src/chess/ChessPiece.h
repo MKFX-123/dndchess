@@ -55,6 +55,7 @@ public:
     int getGold() const { return gold; }
     int getPower() const;
     std::string getName() const { return name; }
+    void setName(const std::string& n) { name = n; }
     std::string getSymbol() const;
     Rarity getRarity() const { return rarity; }
     int getStr() const { return str; }
